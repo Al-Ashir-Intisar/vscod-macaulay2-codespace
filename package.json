@@ -1,13 +1,13 @@
 {
-	"name": "macaulay2",
-	"displayName": "Macaulay2",
+	"name": "macaulay2-codespace",
+	"displayName": "Macaulay2 for Codespaces",
 	"description": "Macaulay2 language support",
 	"version": "0.0.4",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/coreysharris/vscode-macaulay2"
+		"url": "https://github.com/Al-Ashir-Intisar/vscod-macaulay2-codespace"
 	},
-	"publisher": "coreysharris",
+	"publisher": "intisar",
 	"engines": {
 		"vscode": "^1.36.0"
 	},
@@ -54,7 +54,7 @@
 			"properties": {
 				"macaulay2.executablePath": {
 					"type": "string",
-					"default": "/Applications/Macaulay2-1.13/bin/m2",
+					"default": "/usr/bin/M2",
 					"description": "Location of Macaulay2 executable",
 					"scope": "application"
 				}
