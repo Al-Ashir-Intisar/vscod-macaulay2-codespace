@@ -1,5 +1,5 @@
-
 import * as vscode from "vscode";
+import * as path from "path";
 
 let g_context: vscode.ExtensionContext | undefined;
 let g_terminal: vscode.Terminal | undefined;
@@ -11,22 +11,35 @@ function startREPLCommand(context: vscode.ExtensionContext) {
 async function startREPL(preserveFocus: boolean) {
     console.log("function startREPL called...");
     if (g_terminal === undefined) {
-        let exepath = vscode.workspace.getConfiguration("macaulay2").get<string>("executablePath");
-        // console.log(`Starting REPL in ${fileDirname} based on current file of ${file}`);
-        let editor = vscode.window.activeTextEditor;
-        let fullpath = editor!.document.uri.path;
-        let dirarray = fullpath.split("/");
-        dirarray.pop();
-        let dirpath = dirarray.join("/");
-	    console.log(`dirpath: ${dirpath}`);
+        const config = vscode.workspace.getConfiguration("macaulay2");
+        const exepath = config.get<string>("executablePath");
+        const useWSLPaths = config.get<boolean>("useWSLPaths", false);
+
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showErrorMessage("No active editor to start Macaulay2 REPL.");
+            return;
+        }
+
+        let fullpath = editor.document.uri.fsPath;
+        let dirpath = path.dirname(fullpath);
+
+        if (useWSLPaths && process.platform === "win32") {
+            // Convert Windows path to WSL style
+            dirpath = dirpath.replace(/^([A-Z]):/, (_, d) => `/mnt/${d.toLowerCase()}`);
+            dirpath = dirpath.replace(/\\/g, "/");
+        }
+
+        console.log(`Starting REPL in: ${dirpath}`);
+
         g_terminal = vscode.window.createTerminal({
             name: "macaulay2",
-            shellPath: exepath,
-            shellArgs: [],
-            env: {},
-            cwd: `${dirpath}`
+            shellPath: "wsl",
+            shellArgs: ["-e", exepath || "M2"],
+            cwd: dirpath
         });
     }
+
     g_terminal.show(preserveFocus);
 }
 
@@ -40,13 +53,6 @@ async function executeCode(text: string) {
     var lines = text.split(/\r?\n/);
     lines = lines.filter(line => line !== '');
     text = lines.join('\n');
-    // if (process.platform === "win32") {
-        // g_terminal!.sendText(text + '\n', false);
-    // }
-    // else {
-        // g_terminal!.sendText('\u001B[200~' + text + '\n' + '\u001B[201~', false);
-        // g_terminal!.sendText('\u001B[200~' + text + '\n' + '\u001B[201~', false);
-    // }
     g_terminal!.sendText(text + '\n', false);
 }
 
@@ -57,9 +63,10 @@ function executeSelection() {
     }
 
     var selection = editor.selection;
-    var text = selection.isEmpty ? editor.document.lineAt(selection.start.line).text : editor.document.getText(selection);
+    var text = selection.isEmpty
+        ? editor.document.lineAt(selection.start.line).text
+        : editor.document.getText(selection);
 
-    // If no text was selected, try to move the cursor to the end of the next line
     if (selection.isEmpty) {
         for (var line = selection.start.line + 1; line < editor.document.lineCount; line++) {
             if (!editor.document.lineAt(line).isEmptyOrWhitespace) {
@@ -70,6 +77,7 @@ function executeSelection() {
             }
         }
     }
+
     executeCode(text);
 }
 

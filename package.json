@@ -1,13 +1,13 @@
 {
-	"name": "macaulay2-codespace",
-	"displayName": "Macaulay2 for Codespaces",
+	"name": "macaulay2-windows",
+	"displayName": "Macaulay2 for Windows",
 	"description": "Macaulay2 language support",
 	"version": "0.0.4",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Al-Ashir-Intisar/vscod-macaulay2-codespace"
 	},
-	"publisher": "intisar",
+	"publisher": "intisar45",
 	"engines": {
 		"vscode": "^1.36.0"
 	},
