@@ -24,12 +24,6 @@ async function startREPL(preserveFocus: boolean) {
         let fullpath = editor.document.uri.fsPath;
         let dirpath = path.dirname(fullpath);
 
-        if (useWSLPaths && process.platform === "win32") {
-            // Convert Windows path to WSL style
-            dirpath = dirpath.replace(/^([A-Z]):/, (_, d) => `/mnt/${d.toLowerCase()}`);
-            dirpath = dirpath.replace(/\\/g, "/");
-        }
-
         console.log(`Starting REPL in: ${dirpath}`);
 
         g_terminal = vscode.window.createTerminal({
